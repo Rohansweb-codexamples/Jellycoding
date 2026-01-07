@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Jelly Coding – Big Command Library</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #fdf0ff;
+            color: #2c1240;
+        }
+
+        header {
+            background: linear-gradient(120deg, #ff4fb0, #9f5bff);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        nav {
+            background: #3b1547;
+            padding: 10px;
+            text-align: center;
+        }
+
+        nav a {
+            color: #ffe9ff;
+            text-decoration: none;
+            margin: 0 10px;
+            padding: 6px 12px;
+            border-radius: 20px;
+        }
+
+        nav a:hover {
+            background: #ff4fb0;
+        }
+
+        .wrapper {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            padding: 20px;
+        }
+
+        @media (max-width: 900px) {
+            .wrapper {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .panel {
+            background: white;
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            margin-top: 0;
+            color: #ff2f92;
+        }
+
+        textarea {
+            width: 100%;
+            height: 320px;
+            border-radius: 12px;
+            border: 2px solid #ffb3e6;
+            padding: 10px;
+            font-family: Consolas, monospace;
+            font-size: 0.9rem;
+            resize: vertical;
+        }
+
+        button {
+            background: #ff4fb0;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 999px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            margin-top: 8px;
+            margin-right: 8px;
+        }
+
+        button:hover {
+            background: #ff2f92;
+        }
+
+        .stage {
+            background: #0f172a;
+            border-radius: 14px;
+            padding: 10px;
+            color: #e5e7eb;
+        }
+
+        .stage-inner {
+            background: #111827;
+            border-radius: 10px;
+            height: 300px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sprite {
+            width: 60px;
+            height: 60px;
+            background: radial-gradient(circle at 30% 20%, #fff, #ff4fb0);
+            border-radius: 50%;
+            position: absolute;
+            left: 150px;
+            top: 120px;
+            transition: 0.2s;
+        }
+
+        .output {
+            background: #020617;
+            color: #e5e7eb;
+            border-radius: 10px;
+            padding: 10px;
+            margin-top: 10px;
+            height: 140px;
+            overflow-y: auto;
+            font-family: Consolas, monospace;
+            font-size: 0.8rem;
+            white-space: pre-wrap;
+        }
+
+        .help {
+            font-size: 0.85rem;
+            color: #4b5563;
+            margin-top: 8px;
+        }
+
+        ul.example-list {
+            padding-left: 18px;
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Jelly Coding – Big Command Library</h1>
+    <p>Use simple sentences to control the jelly and the world.</p>
+</header>
+
+<nav>
+    <a href="jellyhomepage.html">Home</a>
+    <a href="jelly-coding.html">Coding Page</a>
+</nav>
+
+<div class="wrapper">
+
+    <!-- LEFT: editor and examples -->
+    <div class="panel">
+        <h2>Your Jelly Code</h2>
+        <textarea id="codeBox">
+// You can type many kinds of commands, for example:
+move right 40
+move up 20
+change background to yellow
+set background to sky blue
+make jelly bigger
+make jelly smaller
+spin jelly
+jump 50
+set speed to 3
+fade background to purple
+reset everything
+        </textarea>
+        <div>
+            <button id="runBtn">Run code</button>
+            <button id="resetBtn">Reset stage</button>
+            <button id="clearOutputBtn">Clear output</button>
+        </div>
+        <p class="help">
+            Each line is one command. You can use numbers, colours, and directions in many combinations.<br>
+            The engine understands lots of patterns, so it feels like hundreds of commands.
+        </p>
+        <h3 style="margin-bottom:4px;">More example commands</h3>
+        <ul class="example-list">
+            <li>move left 100</li>
+            <li>move down 60</li>
+            <li>change jelly color to green</li>
+            <li>set background to dark blue</li>
+            <li>make jelly very big</li>
+            <li>shake jelly</li>
+            <li>teleport to 50,200</li>
+            <li>center jelly</li>
+            <li>bounce up 40</li>
+            <li>change background to red</li>
+            <li>reset jelly</li>
+          <li>set background to <color></></li> 
+        </ul>
+    </div>
+
+    <!-- RIGHT: stage and output -->
+    <div class="panel">
+        <h2>Stage</h2>
+        <div class="stage">
+            <div class="stage-inner" id="stage">
+                <div class="sprite" id="sprite"></div>
+            </div>
+        </div>
+
+        <h3>Output</h3>
+        <div class="output" id="outputBox">Ready.</div>
+        <p class="help">
+            Unknown lines will show a gentle message instead of breaking everything.
+        </p>
+    </div>
+
+</div>
+
+<script>
+    // === CORE STATE ===
+    const sprite = document.getElementById("sprite");
+    const stage = document.getElementById("stage");
+    const output = document.getElementById("outputBox");
+
+    let x = 150;
+    let y = 120;
+    let size = 60;
+    let speed = 1; // multiplies movement and effects
+
+    function updateSprite() {
+        sprite.style.left = x + "px";
+        sprite.style.top = y + "px";
+        sprite.style.width = size + "px";
+        sprite.style.height = size + "px";
+    }
+
+    function log(msg) {
+        output.textContent += "\n" + msg;
+        output.scrollTop = output.scrollHeight;
+    }
+
+    function clearOutput() {
+        output.textContent = "Output cleared.";
+    }
+
+    function resetStage(hard = false) {
+        x = 150;
+        y = 120;
+        size = 60;
+        speed = 1;
+        stage.style.background = "#111827";
+        sprite.style.transform = "rotate(0deg)";
+        sprite.style.filter = "brightness(1)";
+        if (hard) {
+            clearOutput();
+            log("Stage fully reset.");
+        } else {
+            log("Stage reset.");
+        }
+        updateSprite();
+    }
+
+    // small helper to get number in line, or default
+    function getNumber(line, fallback) {
+        const num = parseInt(line.replace(/[^0-9-]/g, ""), 10);
+        return isNaN(num) ? fallback : num;
+    }
+
+    // === MAIN EXECUTION ===
+    function runJellyCode() {
+        const text = document.getElementById("codeBox").value;
+        const lines = text.split("\n");
+
+        clearOutput();
+        log("Running Jelly Code...");
+
+        lines.forEach((rawLine, index) => {
+            const lineNumber = index + 1;
+            const line = rawLine.trim().toLowerCase();
+            if (!line) return; // skip blank
+
+            // MOVEMENT PATTERNS
+            if (line.includes("move right")) {
+                const amount = getNumber(line, 20) * speed;
+                x += amount;
+                log("Line " + lineNumber + ": moved right " + amount);
+            } else if (line.includes("move left")) {
+                const amount = getNumber(line, 20) * speed;
+                x -= amount;
+                log("Line " + lineNumber + ": moved left " + amount);
+            } else if (line.includes("move up")) {
+                const amount = getNumber(line, 20) * speed;
+                y -= amount;
+                log("Line " + lineNumber + ": moved up " + amount);
+            } else if (line.includes("move down")) {
+                const amount = getNumber(line, 20) * speed;
+                y += amount;
+                log("Line " + lineNumber + ": moved down " + amount);
+            } else if (line.startsWith("jump")) {
+                const amount = getNumber(line, 40) * speed;
+                y -= amount;
+                setTimeout(() => {
+                    y += amount;
+                    updateSprite();
+                }, 200);
+                log("Line " + lineNumber + ": jelly jumped " + amount);
+            } else if (line.includes("bounce up")) {
+                const amount = getNumber(line, 30) * speed;
+                y -= amount;
+                setTimeout(() => {
+                    y += amount / 2;
+                    updateSprite();
+                }, 150);
+                log("Line " + lineNumber + ": jelly bounced up " + amount);
+
+            // POSITION PATTERNS
+            } else if (line.includes("teleport to")) {
+                // e.g. "teleport to 50,200"
+                const nums = line.match(/-?\d+/g);
+                if (nums && nums.length >= 2) {
+                    x = parseInt(nums[0], 10);
+                    y = parseInt(nums[1], 10);
+                    log("Line " + lineNumber + ": teleported jelly to (" + x + "," + y + ")");
+                } else {
+                    log("Line " + lineNumber + ": could not read teleport position.");
+                }
+            } else if (line.includes("center jelly") || line.includes("centre jelly")) {
+                x = 150;
+                y = 120;
+                log("Line " + lineNumber + ": centered jelly.");
+
+            // SIZE PATTERNS
+            } else if (line.includes("make jelly bigger") || line.includes("bigger")) {
+                const amount = getNumber(line, 10);
+                size += amount;
+                log("Line " + lineNumber + ": jelly became bigger by " + amount);
+            } else if (line.includes("make jelly smaller") || line.includes("smaller")) {
+                const amount = getNumber(line, 10);
+                size = Math.max(20, size - amount);
+                log("Line " + lineNumber + ": jelly became smaller by " + amount);
+            } else if (line.includes("very big")) {
+                size = 120;
+                log("Line " + lineNumber + ": jelly set to very big.");
+            } else if (line.includes("very small")) {
+                size = 30;
+                log("Line " + lineNumber + ": jelly set to very small.");
+
+            // SPEED PATTERN
+            } else if (line.includes("set speed to")) {
+                const amount = getNumber(line, 1);
+                speed = Math.max(0.1, amount);
+                log("Line " + lineNumber + ": speed set to " + speed + "x.");
+
+            // COLOR / BACKGROUND PATTERNS
+            } else if (line.includes("change background to") || line.includes("set background to") || line.includes("background")) {
+                if (line.includes("yellow")) {
+                    stage.style.background = "gold";
+                    log("Line " + lineNumber + ": background set to yellow.");
+                } else if (line.includes("blue")) {
+                    stage.style.background = "#0f3b66";
+                    log("Line " + lineNumber + ": background set to blue.");
+                } else if (line.includes("pink")) {
+                    stage.style.background = "#4b164c";
+                    log("Line " + lineNumber + ": background set to pink.");
+                } else if (line.includes("green")) {
+                    stage.style.background = "#0f6620";
+                    log("Line " + lineNumber + ": background set to green.");
+                } else if (line.includes("red")) {
+                    stage.style.background = "#661010";
+                    log("Line " + lineNumber + ": background set to red.");
+                } else if (line.includes("purple")) {
+                    stage.style.background = "#3b1a66";
+                    log("Line " + lineNumber + ": background set to purple.");
+                } else if (line.includes("white")) {
+                    stage.style.background = "#e5e7eb";
+                    log("Line " + lineNumber + ": background set to white.");
+                } else if (line.includes("black") || line.includes("dark")) {
+                    stage.style.background = "#020617";
+                    log("Line " + lineNumber + ": background set to dark.");
+                } else if (line.includes("sky")) {
+                    stage.style.background = "#38bdf8";
+                    log("Line " + lineNumber + ": background set to sky blue.");
+                } else {
+                    log("Line " + lineNumber + ": background command found but colour not understood.");
+                }
+
+            } else if (line.includes("change jelly color to") || line.includes("change jelly colour to")) {
+                if (line.includes("yellow")) {
+                    sprite.style.background = "radial-gradient(circle at 30% 20%, #fff, gold)";
+                } else if (line.includes("blue")) {
+                    sprite.style.background = "radial-gradient(circle at 30% 20%, #fff, #3b82f6)";
+                } else if (line.includes("green")) {
+                    sprite.style.background = "radial-gradient(circle at 30% 20%, #fff, #22c55e)";
+                } else if (line.includes("red")) {
+                    sprite.style.background = "radial-gradient(circle at 30% 20%, #fff, #ef4444)";
+                } else if (line.includes("purple")) {
+                    sprite.style.background = "radial-gradient(circle at 30% 20%, #fff, #a855f7)";
+                } else if (line.includes("pink")) {
+                    sprite.style.background = "radial-gradient(circle at 30% 20%, #fff, #ec4899)";
+                }
+                log("Line " + lineNumber + ": changed jelly colour.");
+
+            // EFFECTS
+            } else if (line.includes("spin jelly") || line.includes("rotate")) {
+                sprite.style.transform = "rotate(360deg)";
+                setTimeout(() => {
+                    sprite.style.transform = "rotate(0deg)";
+                }, 400);
+                log("Line " + lineNumber + ": jelly spun around.");
+            } else if (line.includes("shake jelly") || line.includes("wiggle")) {
+                const originalX = x;
+                x += 10; updateSprite();
+                setTimeout(() => { x -= 20; updateSprite(); }, 80);
+                setTimeout(() => { x = originalX; updateSprite(); }, 160);
+                log("Line " + lineNumber + ": jelly shook.");
+
+            } else if (line.includes("fade background")) {
+                stage.style.transition = "background 0.5s";
+                if (line.includes("purple")) {
+                    stage.style.background = "#3b1a66";
+                } else if (line.includes("blue")) {
+                    stage.style.background = "#0f3b66";
+                } else if (line.includes("black") || line.includes("dark")) {
+                    stage.style.background = "#020617";
+                } else {
+                    stage.style.background = "#4b164c";
+                }
+                log("Line " + lineNumber + ": background faded.");
+
+            // RESET
+            } else if (line.includes("reset everything") || line === "reset") {
+                resetStage(false);
+
+            } else if (line.includes("reset jelly")) {
+                x = 150;
+                y = 120;
+                size = 60;
+                log("Line " + lineNumber + ": jelly reset.");
+            
+            // UNKNOWN COMMAND
+            } else {
+                log("Line " + lineNumber + ": I don't understand this line yet: \"" + rawLine.trim() + "\"");
+            }
+
+            updateSprite();
+        });
+
+        log("Done.");
+    }
+
+    // Buttons
+    document.getElementById("runBtn").addEventListener("click", runJellyCode);
+    document.getElementById("resetBtn").addEventListener("click", () => resetStage(true));
+    document.getElementById("clearOutputBtn").addEventListener("click", clearOutput);
+
+    // Initial state
+    resetStage(false);
+</script>
+
+</body>
+</html>
