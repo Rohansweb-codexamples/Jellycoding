@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Jelly Coding – Home</title>
+    <style>
+        body {
+            margin: 0;
+            background: #0a0f14;
+            color: #d1f7ff;
+            font-family: Consolas, monospace;
+        }
+
+        /* NAV BAR */
+        nav {
+            background: #0d141a;
+            border-bottom: 2px solid #1b2a33;
+            padding: 12px 20px;
+            display: flex;
+            gap: 20px;
+            font-size: 1rem;
+        }
+
+        nav a {
+            color: #6be6ff;
+            text-decoration: none;
+            padding: 6px 10px;
+            border-radius: 4px;
+            transition: 0.2s;
+        }
+
+        nav a:hover {
+            background: #122027;
+            color: #a8faff;
+        }
+
+        /* TERMINAL WINDOW */
+        .terminal {
+            max-width: 900px;
+            margin: 40px auto;
+            background: #0d141a;
+            border: 2px solid #1b2a33;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0,255,255,0.1);
+        }
+
+        .terminal-header {
+            background: #111b22;
+            padding: 10px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .red { background: #ff5f56; }
+        .yellow { background: #ffbd2e; }
+        .green { background: #27c93f; }
+
+        .terminal-body {
+            padding: 20px;
+            font-size: 1rem;
+            line-height: 1.6rem;
+            white-space: pre-wrap;
+        }
+
+        .prompt {
+            color: #6be6ff;
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 10px;
+            height: 18px;
+            background: #6be6ff;
+            animation: blink 0.8s infinite;
+            vertical-align: middle;
+        }
+
+        @keyframes blink {
+            0% { opacity: 1; }
+            50% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+
+        /* BUTTONS */
+        .btn {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 18px;
+            background: #122027;
+            border: 1px solid #1b2a33;
+            color: #6be6ff;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: 0.2s;
+        }
+
+        .btn:hover {
+            background: #1b2a33;
+            color: #a8faff;
+        }
+    </style>
+</head>
+<body>
+
+<!-- NAVIGATION BAR -->
+<nav>
+    <a href="index.html">Home</a>
+    <a href="coding.html">Coding Page</a>
+    <a href="playground.html">Playground</a>
+    <a href="language.html">Jelly Language</a>
+</nav>
+
+<!-- TERMINAL WINDOW -->
+<div class="terminal">
+    <div class="terminal-header">
+        <div class="dot red"></div>
+        <div class="dot yellow"></div>
+        <div class="dot green"></div>
+    </div>
+
+    <div class="terminal-body">
+        <span class="prompt">jelly@coding:~$</span> Welcome to <strong>Jelly Coding</strong>  
+        <span class="prompt">jelly@coding:~$</span> A playful coding world for kids  
+        <span class="prompt">jelly@coding:~$</span> Type. Run. Create.  
+        <span class="prompt">jelly@coding:~$</span> Build games, animations, and web pages  
+        <span class="prompt">jelly@coding:~$</span> Using simple Jelly Commands  
+        <span class="prompt">jelly@coding:~$</span>  
+        <span class="prompt">jelly@coding:~$</span> Try the coding page to begin  
+        <span class="cursor"></span>
+
+        <br><br>
+        <a class="btn" href="coding.html">Start Coding →</a>
+    </div>
+</div>
+
+</body>
+</html>
