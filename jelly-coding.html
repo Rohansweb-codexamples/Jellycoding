@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Jelly Coding – Improved Code Runner</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #0a0f14;
+            color: #d1f7ff;
+        }
+
+        /* NAV BAR */
+        nav {
+            background: #0d141a;
+            border-bottom: 2px solid #1b2a33;
+            padding: 12px 20px;
+            display: flex;
+            gap: 20px;
+            font-family: Consolas, monospace;
+        }
+
+        nav a {
+            color: #6be6ff;
+            text-decoration: none;
+            padding: 6px 10px;
+            border-radius: 4px;
+            transition: 0.2s;
+        }
+
+        nav a:hover {
+            background: #122027;
+            color: #a8faff;
+        }
+
+        .wrapper {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            padding: 20px;
+        }
+
+        @media (max-width: 900px) {
+            .wrapper {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .panel {
+            background: #0d141a;
+            border: 2px solid #1b2a33;
+            border-radius: 10px;
+            padding: 16px;
+            box-shadow: 0 0 20px rgba(0,255,255,0.05);
+        }
+
+        h2 {
+            margin-top: 0;
+            color: #9af7ff;
+            font-family: Consolas, monospace;
+        }
+
+        textarea {
+            width: 100%;
+            height: 300px;
+            border-radius: 8px;
+            border: 2px solid #1b2a33;
+            background: #0a0f14;
+            color: #d1f7ff;
+            padding: 10px;
+            font-family: Consolas, monospace;
+            font-size: 0.9rem;
+        }
+
+        button {
+            background: #122027;
+            color: #6be6ff;
+            border: 1px solid #1b2a33;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            margin-top: 8px;
+            margin-right: 8px;
+            transition: 0.2s;
+        }
+
+        button:hover {
+            background: #1b2a33;
+            color: #a8faff;
+        }
+
+        .stage {
+            background: #0f172a;
+            border-radius: 10px;
+            padding: 10px;
+            color: #e5e7eb;
+        }
+
+        .stage-inner {
+            background: #111827;
+            border-radius: 10px;
+            height: 300px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sprite {
+            width: 60px;
+            height: 60px;
+            background: radial-gradient(circle at 30% 20%, #fff, #ff4fb0);
+            border-radius: 50%;
+            position: absolute;
+            left: 150px;
+            top: 120px;
+            transition: 0.2s;
+        }
+
+        .output {
+            background: #020617;
+            color: #e5e7eb;
+            border-radius: 10px;
+            padding: 10px;
+            margin-top: 10px;
+            height: 140px;
+            overflow-y: auto;
+            font-family: Consolas, monospace;
+            font-size: 0.8rem;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+
+<!-- FIXED NAV BAR -->
+<nav>
+    <a href="index.html">Home</a>
+    <a href="coding.html">Coding Page</a>
+    <a href="language.html">Jelly Language</a>
+</nav>
+
+<div class="wrapper">
+
+    <!-- LEFT SIDE -->
+    <div class="panel">
+        <h2>Your Jelly Code</h2>
+        <textarea id="codeBox">
+// Try these:
+// move right 40
+// move up 20
+// make jelly bigger
+// change background to yellow
+// change background to blue
+// reset
+        </textarea>
+        <button onclick="runJellyCode()">Run Code</button>
+        <button onclick="resetStage(true)">Reset Stage</button>
+        <button onclick="clearOutput()">Clear Output</button>
+    </div>
+
+    <!-- RIGHT SIDE -->
+    <div class="panel">
+        <h2>Stage</h2>
+        <div class="stage">
+            <div class="stage-inner" id="stage">
+                <div class="sprite" id="sprite"></div>
+            </div>
+        </div>
+
+        <h2>Output</h2>
+        <div class="output" id="outputBox">Ready.</div>
+    </div>
+
+</div>
+
+<script>
+    const sprite = document.getElementById("sprite");
+    const stage = document.getElementById("stage");
+    const output = document.getElementById("outputBox");
+
+    let x = 150;
+    let y = 120;
+    let size = 60;
+
+    function updateSprite() {
+        sprite.style.left = x + "px";
+        sprite.style.top = y + "px";
+        sprite.style.width = size + "px";
+        sprite.style.height = size + "px";
+    }
+
+    function log(msg) {
+        output.textContent += "\n" + msg;
+        output.scrollTop = output.scrollHeight;
+    }
+
+    function clearOutput() {
+        output.textContent = "Output cleared.";
+    }
+
+    function resetStage(hard = false) {
+        x = 150;
+        y = 120;
+        size = 60;
+        stage.style.background = "#111827";
+        sprite.style.transform = "rotate(0deg)";
+        if (hard) clearOutput();
+        log("Stage reset.");
+        updateSprite();
+    }
+
+    function getNumber(line, fallback) {
+        const num = parseInt(line.replace(/[^0-9-]/g, ""), 10);
+        return isNaN(num) ? fallback : num;
+    }
+
+    function runJellyCode() {
+        const lines = document.getElementById("codeBox").value.split("\n");
+        clearOutput();
+        log("Running Jelly Code...");
+
+        lines.forEach((rawLine, index) => {
+            const line = rawLine.trim().toLowerCase();
+            const n = index + 1;
+
+            if (!line) return;
+
+            if (line.includes("move right")) {
+                x += getNumber(line, 20);
+                log("Line " + n + ": moved right");
+            }
+            else if (line.includes("move left")) {
+                x -= getNumber(line, 20);
+                log("Line " + n + ": moved left");
+            }
+            else if (line.includes("move up")) {
+                y -= getNumber(line, 20);
+                log("Line " + n + ": moved up");
+            }
+            else if (line.includes("move down")) {
+                y += getNumber(line, 20);
+                log("Line " + n + ": moved down");
+            }
+            else if (line.includes("bigger")) {
+                size += 10;
+                log("Line " + n + ": jelly bigger");
+            }
+            else if (line.includes("smaller")) {
+                size = Math.max(20, size - 10);
+                log("Line " + n + ": jelly smaller");
+            }
+            else if (line.includes("change background to")) {
+                if (line.includes("yellow")) stage.style.background = "gold";
+                if (line.includes("blue")) stage.style.background = "#0f3b66";
+                if (line.includes("pink")) stage.style.background = "#4b164c";
+                if (line.includes("green")) stage.style.background = "#0f6620";
+                log("Line " + n + ": background changed");
+            }
+            else if (line === "reset") {
+                resetStage(false);
+            }
+            else {
+                log("Line " + n + ": Unknown command → " + rawLine);
+            }
+
+            updateSprite();
+        });
+
+        log("Done.");
+    }
+
+    updateSprite();
+</script>
+
+</body>
+</html>
